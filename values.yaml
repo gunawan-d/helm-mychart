@@ -1,0 +1,71 @@
+deployment:
+  name: nginx-app
+  app: nginx
+  replicas: 1
+  containerPort: 8080
+  containers:
+    name: nginx
+    image:  nginx:latest
+resources:
+  requests:
+    cpu: "128m"
+    memory: "258Mi"
+  limits:
+    cpu: "256m"
+    memory: "258Mi"
+
+namespace: staging
+
+service:
+  name: nginx-app
+  app: nginx
+  port: 8080
+
+
+secret:
+  NAME: "nginx-secret"
+  DB_HOST: 127.0.0.1
+  DB_NAME: namedb
+  DB_USER: user
+  DB_PWD: asdf8
+  DB_PORT: 3306
+
+configmap:
+  NAME: "nginx-configmap"
+  DEBUG_MODE: true
+
+#env
+
+env: 
+  - name: DB_HOST
+    valueFrom:
+      secretKeyRef:
+        name: nginx-secret
+        key: DB_HOST
+  - name: DB_NAME
+    valueFrom:
+      secretKeyRef:
+        name: nginx-secret
+        key: DB_NAME
+  - name: DB_USER
+    valueFrom:
+      secretKeyRef:
+        name: nginx-secret
+        key: DB_USER
+  - name: DB_PWD
+    valueFrom:
+      secretKeyRef:
+        name: nginx-secret
+        key: DB_PWD
+  - name: DB_PORT
+    valueFrom:
+      secretKeyRef:
+        name: nginx-secret
+        key: DB_PORT
+
+#configmap
+  - name: DEBUG_MODE
+    valueFrom:
+      configMapKeyRef:
+        name: nginx-configmap
+        key: DEBUG_MODE

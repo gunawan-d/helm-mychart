@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}-deployment
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.deployment.name }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.app }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deployment.app }}
+    spec:
+      containers:
+      - name: {{ .Values.deployment.containers.name }}
+        image: {{ .Values.deployment.containers.image }}
+        ports:
+        - containerPort: {{ .Values.deployment.containerPort }}
+        imagePullPolicy: Always
+        env: 
+          {{- toYaml .Values.env | nindent 12 }}
+#Create readness & liveness
+        readinessProbe:
+          httpGet:
+            path: /healthcheck
+            port: {{ .Values.deployment.containerPort }}
+            scheme: HTTP
+          initialDelaySeconds: 20
+          periodSeconds: 20
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: {{ .Values.deployment.containerPort }}
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          failureThreshold: 3
+        resources:
+          requests:
+            cpu: {{ .Values.resources.requests.cpu }}
+            memory: {{ .Values.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.resources.limits.cpu }}
+            memory: {{ .Values.resources.limits.memory }}
+      imagePullSecrets:
+      - name: container-registry
+      

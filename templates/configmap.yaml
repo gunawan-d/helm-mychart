@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.configmap.NAME }}
+  namespace: {{ .Values.namespace }}
+data:
+  {{- range $key, $val := .Values.configmap }}
+  {{ $key }}: "{{ $val | toString }}"
+  {{- end}}
